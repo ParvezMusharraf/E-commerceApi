@@ -5,7 +5,9 @@ const ProductJson = require('./product.json')
 const app = express()
 const PORT = 3000
 const ProductModel = require("./models/Product")
+var cors = require('cors')
 
+app.use(cors())
 app.get("/Allproducts",async(req,res)=>{
  try {
     // Fetch all products from the database
