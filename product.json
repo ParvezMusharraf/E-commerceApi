@@ -1,0 +1,164 @@
+{
+    "products": [
+      {
+        "name": "Galaxy S25",
+        "price": 999,
+        "featured": ["High-quality AMOLED display", "Impressive camera system"],
+        "rating": 4.7,
+        "createdAt": "2024-04-24T12:00:00Z",
+        "company": "Samsung"
+      },
+      {
+        "name": "Galaxy Note 30",
+        "price": 1099,
+        "featured": ["S Pen integration"," Large screen with high resolution"],
+        "rating": 4.8,
+        "createdAt": "2024-04-23T12:00:00Z",
+        "company": "Samsung"
+      },
+      {
+        "name": "iPhone 15 Pro",
+        "price": 1299,
+        "featured":[ "Pro-level performance"," Advanced camera features"],
+        "rating": 4.9,
+        "createdAt": "2024-04-22T12:00:00Z",
+        "company": "Apple"
+      },
+      {
+        "name": "iPad Pro 2024",
+        "price": 1399,
+        "featured": ["Stunning Liquid Retina display", "Powerful M-series chip"],
+        "rating": 4.7,
+        "createdAt": "2024-04-21T12:00:00Z",
+        "company": "Apple"
+      },
+      {
+        "name": "Pixel Ultra",
+        "price": 899,
+        "featured": ["Immersive OLED display", "Advanced AI capabilities"],
+        "rating": 4.6,
+        "createdAt": "2024-04-20T12:00:00Z",
+        "company": "Google"
+      },
+      {
+        "name": "PixelBook Pro",
+        "price": 1299,
+        "featured": ["Versatile convertible design", "High-performance Intel processor"],
+        "rating": 4.5,
+        "createdAt": "2024-04-19T12:00:00Z",
+        "company": "Google"
+      },
+      {
+        "name": "SurfaceBook Pro 5",
+        "price": 1499,
+        "featured": ["Sleek and lightweight design"," Stunning PixelSense display"],
+        "rating": 4.8,
+        "createdAt": "2024-04-18T12:00:00Z",
+        "company": "Microsoft"
+      },
+      {
+        "name": "Surface Studio X",
+        "price": 1999,
+        "featured": ["Immersive touchscreen experience", "Powerful processing"],
+        "rating": 4.7,
+        "createdAt": "2024-04-17T12:00:00Z",
+        "company": "Microsoft"
+      },
+      {
+        "name": "ThinkPad X3",
+        "price": 1199,
+        "featured":[ "Robust build quality", "Long-lasting battery life"],
+        "rating": 4.5,
+        "createdAt": "2024-04-16T12:00:00Z",
+        "company": "Lenovo"
+      },
+      {
+        "name": "YogaBook Plus",
+        "price": 999,
+        "featured": ["Innovative dual-display design", "Lightweight and portable"],
+        "rating": 4.4,
+        "createdAt": "2024-04-15T12:00:00Z",
+        "company": "Lenovo"
+      },
+      {
+        "name": "Galaxy S30",
+        "price": 1099,
+        "features": ["6.8-inch AMOLED Display", "Snapdragon 9 Series Chipset", "Quad Camera Setup"],
+        "rating": 4.6,
+        "createdAt": "2024-04-24T12:00:00Z",
+        "company": "Samsung"
+      },
+      {
+        "name": "Galaxy Fold 3",
+        "price": 1599,
+        "features": ["Foldable Dynamic AMOLED Display", "Snapdragon 9 Series Chipset", "Triple Camera Setup"],
+        "rating": 4.8,
+        "createdAt": "2024-04-23T12:00:00Z",
+        "company": "Samsung"
+      },
+      {
+        "name": "iPhone 16 Pro",
+        "price": 1399,
+        "features": ["6.7-inch Super Retina XDR Display", "A16 Bionic Chip", "Triple Camera System"],
+        "rating": 4.9,
+        "createdAt": "2024-04-22T12:00:00Z",
+        "company": "Apple"
+      },
+      {
+        "name": "iPad Pro 2025",
+        "price": 1499,
+        "features": ["12.9-inch Liquid Retina XDR Display", "M17 Chip", "5G Connectivity"],
+        "rating": 4.7,
+        "createdAt": "2024-04-21T12:00:00Z",
+        "company": "Apple"
+      },
+      {
+        "name": "Pixel 7",
+        "price": 1099,
+        "features": ["6.3-inch OLED Display", "Tensor 3 Chip", "Dual Rear Cameras"],
+        "rating": 4.7,
+        "createdAt": "2024-04-20T12:00:00Z",
+        "company": "Google"
+      },
+      {
+        "name": "PixelBook Go",
+        "price": 1199,
+        "features": ["13.3-inch Full HD Display", "8th Gen Intel Core Processor", "Ultra-thin and Lightweight Design"],
+        "rating": 4.6,
+        "createdAt": "2024-04-19T12:00:00Z",
+        "company": "Google"
+      },
+      {
+        "name": "SurfaceBook Pro 6",
+        "price": 1599,
+        "features": ["13.5-inch PixelSense Display", "Intel Core i9 Processor", "NVIDIA GeForce RTX Graphics"],
+        "rating": 4.9,
+        "createdAt": "2024-04-18T12:00:00Z",
+        "company": "Microsoft"
+      },
+      {
+        "name": "Surface Studio Y",
+        "price": 2199,
+        "features": ["28-inch PixelSense Display", "Intel Core i7 Processor", "NVIDIA GeForce GTX Graphics"],
+        "rating": 4.8,
+        "createdAt": "2024-04-17T12:00:00Z",
+        "company": "Microsoft"
+      },
+      {
+        "name": "ThinkPad X4",
+        "price": 1299,
+        "features": ["14-inch Full HD Display", "AMD Ryzen Processor", "Military-grade Durability"],
+        "rating": 4.6,
+        "createdAt": "2024-04-16T12:00:00Z",
+        "company": "Lenovo"
+      },
+      {
+        "name": "IdeaPad Pro",
+        "price": 999,
+        "features": ["15.6-inch IPS Display", "Intel Core i5 Processor", "Slim and Lightweight Design"],
+        "rating": 4.5,
+        "createdAt": "2024-04-15T12:00:00Z",
+        "company": "Lenovo"
+      }
+    ]
+  }
