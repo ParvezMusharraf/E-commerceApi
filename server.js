@@ -7,9 +7,14 @@ const PORT = 3000;
 const ProductModel = require("./models/Product");
 const UserModel = require("./models/userModel");
 var cors = require("cors");
+const userModel = require("./models/userModel");
+const jwt = require('jsonwebtoken');
 app.use(express.json());
 
 app.use(cors());
+
+const SECRET_KEY = 'I am really a good boy'; // You should store this in an environment variable for better security
+
 
 // ALL PRODUCT API REQ
 app.get("/Allproducts", async (req, res) => {
@@ -22,6 +27,25 @@ app.get("/Allproducts", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+app.post("/allProductListByUserId", async (req, res) => {
+  try {
+    const { userid } = req.body;
+    const products = await ProductModel.find({ userid });
+
+    if (products.length > 0) {
+      res.status(200).json(products);
+    } else {
+      res.status(200).json({
+        msg: "No products found for the user"
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching products:", error); 
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 
 // ALL PRODUCT BY CATEGORY
 app.get("/AllproductsByCategory", async (req, res) => {
@@ -54,13 +78,21 @@ app.get("/getAllCatagoryList", async (req, res) => {
 app.post("/SaveProduct", async (req, res) => {
   try {
     // Extract product details from the request body
-    const { title, price, description, category, image, rating } = req.body;
+    const { title, price, description, category, image, rating, userid } = req.body;
 
     // Validate incoming data (you can use a validation library like Joi or validate manually)
     if (!title || !price || !category) {
-      return res
-        .status(400)
-        .json({ error: "Title, price, and category are required" });
+      return res.status(400).json({ error: "Title, price, and category are required" });
+    }
+
+    if (!userid) {
+      return res.status(400).json({ error: "User id cannot be empty" });
+    }
+
+    // Check if the user exists
+    const user = await userModel.findById(userid);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
 
     // Create a new product instance
@@ -71,34 +103,19 @@ app.post("/SaveProduct", async (req, res) => {
       category,
       image,
       rating,
+      userid // Associate the userid with the product
     });
-
-    // // payLoad
-    // {
-    //     "title": "Sample Product",
-    //     "price": 29.99,
-    //     "description": "This is a sample product description.",
-    //     "category": "men's clothing",
-    //     "image": "https://example.com/sample-image.jpg",
-    //     "rating": {
-    //         "rate": "4.5",
-    //         "count": 10
-    //     }
-    // }
 
     // Save the new product to the database
     await newProduct.save();
 
     // Return success response
-    res
-      .status(201)
-      .json({ message: "Product added successfully", product: newProduct });
+    res.status(201).json({ message: "Product added successfully", product: newProduct });
   } catch (error) {
     console.error("Error adding product:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 app.post("/Auth/User", async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -134,7 +151,9 @@ app.post("/Auth/Login", async (req, res) => {
   
       // Check if user exists
       if (!user) {
-        return res.status(401).json({ message: "Invalid email or password" });
+        return res.status(200).json({ message: "Invalid email or password",
+          userAvailable:false
+         });
       }
   
       // Compare passwords securely
@@ -142,19 +161,43 @@ app.post("/Auth/Login", async (req, res) => {
       
       // Check if passwords match
       if (!isMatch) {
-        return res.status(401).json({ message: "Invalid email or password" });
+        return res.status(200).json({ message: "Invalid email or password" });
       }
   
       // Passwords match, login successful
-      res.status(200).json({
+      const token = jwt.sign(
+        { userId: user._id, email: user.email },
+        SECRET_KEY,
+        { expiresIn: '1h' } // Token expires in 1 hour
+    );
+
+    // Login successful, send token
+    res.status(200).json({
         message: "Login successful",
-        userAvailable:true,
-        user,
-      });
+        userAvailable: true,
+        token,
+    });
   
     } catch (error) {
       console.error("Error Finding User", error);
       res.status(500).json({ error: "Server error" });
+    }
+  });
+
+
+  app.delete("/deleteproductbyid/:productId", async (req, res) => {
+    const productId = req.params.productId;
+  
+    try {
+      const deleteProduct = await ProductModel.findByIdAndDelete(productId);
+      if (deleteProduct) {
+        res.status(200).json({ message: 'Product deleted successfully' });
+      } else {
+        res.status(404).json({ message: 'Product not found' });
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   });
 
