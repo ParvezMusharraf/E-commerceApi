@@ -1,6 +1,7 @@
 const express = require("express");
 const ConnectDb = require("./connectdb");
 const URl = "mongodb://0.0.0.0:27017/Testing";
+// const URl = "mongodb+srv://parvezmusharraf61:parvez3344@cluster0.5b50qms.mongodb.net/cluster0?retryWrites=true&w=majority&appName=Cluster0";
 const ProductJson = require("./product.json");
 const app = express();
 const PORT = 3000;
@@ -166,7 +167,10 @@ app.post("/Auth/Login", async (req, res) => {
   
       // Passwords match, login successful
       const token = jwt.sign(
-        { userId: user._id, email: user.email },
+        { 
+          userId: user._id,
+          email: user.email
+        },
         SECRET_KEY,
         { expiresIn: '1h' } // Token expires in 1 hour
     );
@@ -176,6 +180,9 @@ app.post("/Auth/Login", async (req, res) => {
         message: "Login successful",
         userAvailable: true,
         token,
+        userId: user._id,
+        email: user.email,
+        username:user.username
     });
   
     } catch (error) {
