@@ -131,7 +131,9 @@ app.post("/Auth/User", async (req, res) => {
       password,
     });
     await user.save();
-    res.status(201).json({ message: "User data saved successfully", user });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(201).json({ message: "User data saved successfully", user ,token});
   } catch (error) {
     console.error("Error saving user", error);
     res.status(500).json({ error: "Error saving user" });
