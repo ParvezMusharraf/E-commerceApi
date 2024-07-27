@@ -22,7 +22,11 @@ app.get("/Allproducts", async (req, res) => {
   try {
     // Fetch all products from the database
     const products = await ProductModel.find({});
-    res.json(products);
+    if(products.length > 0){
+      res.json(products);
+    }else(
+      res.json("No Product Found")
+    )
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -54,7 +58,11 @@ app.get("/AllproductsByCategory", async (req, res) => {
     const { category } = req.query;
     // Fetch all products from the database
     const products = await ProductModel.find({ category });
-    res.json(products);
+    if(products.length == 0){
+      res.json("No Product Found");
+    }else{
+      res.json(products);
+    }
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ error: "Internal Server Error" });
