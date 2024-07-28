@@ -154,7 +154,7 @@ app.post("/addtocart", async (req, res) => {
     // Check if the product is already in the user's cart
     const existingCartItem = await ProductCart.findOne({ userid, productId });
     if (existingCartItem) {
-      return res.status(400).json({ message: "Product already in cart" });
+      return res.status(201).json({ message: "Product already in cart" });
     }
 
     // Add the product to the cart
