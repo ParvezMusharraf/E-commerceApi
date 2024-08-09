@@ -66,6 +66,28 @@ app.get("/AllproductsByCategory", async (req, res) => {
   }
 });
 
+app.get('/getAddToCart', async (req, res) => {
+  try {
+    const { userid } = req.query; // Use req.query for GET requests
+    if (!userid) {
+      return res.status(400).json({ message: "User Id required" }); // Use status code 400 for bad requests
+    }
+
+    const data = await ProductCart.find({ userid });
+
+    
+    if (data.length === 0) {
+      return res.status(404).json({ message: "No product found for the selected user" }); // Use status code 404 for not found
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 // ALL CATEGORY LIST
 app.get("/getAllCatagoryList", async (req, res) => {
   try {
