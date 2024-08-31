@@ -12,10 +12,9 @@ const userModel = require("./models/userModel");
 const ProductCart = require("./models/cart");
 const jwt = require("jsonwebtoken");
 app.use(express.json());
-
 app.use(cors());
 
-const SECRET_KEY = "I am really a good boy"; // You should store this in an environment variable for better security
+const JWT_SECRET = "I am really a good boy"; // You should store this in an environment variable for better security
 
 // ALL PRODUCT API REQ
 app.get("/Allproducts", async (req, res) => {
