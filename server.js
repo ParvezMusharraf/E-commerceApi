@@ -1,7 +1,7 @@
 const express = require("express");
 const ConnectDb = require("./connectdb");
-const URl = "mongodb://0.0.0.0:27017/Testing";
-// const URl = "mongodb+srv://parvezmusharraf61:parvez3344@cluster0.5b50qms.mongodb.net/cluster0?retryWrites=true&w=majority&appName=Cluster0";
+// const URl = "mongodb://0.0.0.0:27017/Testing";
+const URl = "mongodb+srv://parvezmusharraf61:parvez3344@cluster0.5b50qms.mongodb.net/cluster0?retryWrites=true&w=majority&appName=Cluster0";
 const ProductJson = require("./product.json");
 const app = express();
 const PORT = 3000;
@@ -72,15 +72,14 @@ app.get('/getAddToCart', async (req, res) => {
     if (!userid) {
       return res.status(400).json({ message: "User Id required" }); // Use status code 400 for bad requests
     }
-
-    const data = await ProductCart.find({ userid });
-
-    
+    const data = await ProductCart.find({ userid });  
     if (data.length === 0) {
       return res.status(404).json({ message: "No product found for the selected user" }); // Use status code 404 for not found
     }
+    const productIds = data.map((item) => item.productId);
+    const products = await ProductModel.find({ _id: { $in: productIds } });
+    res.json(products);
 
-    res.json(data);
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ error: "Internal Server Error" });
