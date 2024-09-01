@@ -252,7 +252,7 @@ app.post("/Auth/Login", async (req, res) => {
         userId: user._id,
         email: user.email,
       },
-      SECRET_KEY,
+      JWT_SECRET,
       { expiresIn: "1h" } // Token expires in 1 hour
     );
 
