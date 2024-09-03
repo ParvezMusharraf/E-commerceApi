@@ -11,15 +11,36 @@ var cors = require("cors");
 const userModel = require("./models/userModel");
 const ProductCart = require("./models/cart");
 const jwt = require("jsonwebtoken");
+
+
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swaggerConfig');
 app.use(express.json());
 app.use(cors());
 
 const JWT_SECRET = "I am really a good boy"; // You should store this in an environment variable for better security
 
 // ALL PRODUCT API REQ
+
+
+/**
+ * @swagger
+ * /Allproducts:
+ *   get:
+ *     summary: Get all products
+ *     description: Retrieve a list of all products
+ *     responses:
+ *       200:
+ *         description: A list of products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 app.get("/Allproducts", async (req, res) => {
   try {
-    // Fetch all products from the database
     const products = await ProductModel.find({});
     if (products.length > 0) {
       res.json(products);
@@ -30,6 +51,32 @@ app.get("/Allproducts", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /allProductListByUserId:
+ *   post:
+ *     summary: Get products by user ID
+ *     description: Retrieve a list of products associated with a specific user ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userid:
+ *                 type: string
+ *                 description: User ID
+ *     responses:
+ *       200:
+ *         description: A list of products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 app.post("/allProductListByUserId", async (req, res) => {
   try {
     const { userid } = req.body;
@@ -48,11 +95,32 @@ app.post("/allProductListByUserId", async (req, res) => {
   }
 });
 
-// ALL PRODUCT BY CATEGORY
+/**
+ * @swagger
+ * /AllproductsByCategory:
+ *   get:
+ *     summary: Get products by category
+ *     description: Retrieve a list of products based on category
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Category of the products
+ *     responses:
+ *       200:
+ *         description: A list of products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 app.get("/AllproductsByCategory", async (req, res) => {
   try {
     const { category } = req.query;
-    // Fetch all products from the database
     const products = await ProductModel.find({ category });
     if (products.length == 0) {
       res.json("No Product Found");
@@ -65,34 +133,69 @@ app.get("/AllproductsByCategory", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /getAddToCart:
+ *   get:
+ *     summary: Get products in the cart by user ID
+ *     description: Retrieve products added to the cart by a specific user
+ *     parameters:
+ *       - in: query
+ *         name: userid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: A list of products in the cart
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 app.get('/getAddToCart', async (req, res) => {
   try {
-    const { userid } = req.query; // Use req.query for GET requests
+    const { userid } = req.query;
     if (!userid) {
-      return res.status(400).json({ message: "User Id required" }); // Use status code 400 for bad requests
+      return res.status(400).json({ message: "User Id required" });
     }
     const data = await ProductCart.find({ userid });  
     if (data.length === 0) {
-      return res.status(404).json({ message: "No product found for the selected user" }); // Use status code 404 for not found
+      return res.status(404).json({ message: "No product found for the selected user" });
     }
     const productIds = data.map((item) => item.productId);
     const products = await ProductModel.find({ _id: { $in: productIds } });
     res.json(products);
-
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-
-// ALL CATEGORY LIST
+/**
+ * @swagger
+ * /getAllCatagoryList:
+ *   get:
+ *     summary: Get all product categories
+ *     description: Retrieve a list of all product categories
+ *     responses:
+ *       200:
+ *         description: A list of categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 app.get("/getAllCatagoryList", async (req, res) => {
   try {
-    // Fetch distinct categories from the database
     const categories = await ProductModel.aggregate([
       { $group: { _id: "$category", image: { $first: "$image" } } },
-      { $project: { categoryName: "$_id", category: 1, image: 1, _id: 0 } }, // Rename _id to categoryId
+      { $project: { categoryName: "$_id", category: 1, image: 1, _id: 0 } },
     ]);
     res.json(categories);
   } catch (error) {
@@ -101,30 +204,56 @@ app.get("/getAllCatagoryList", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /SaveProduct:
+ *   post:
+ *     summary: Save a new product
+ *     description: Add a new product to the database
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               description:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               image:
+ *                 type: string
+ *               rating:
+ *                 type: number
+ *               userid:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Product added successfully
+ *       400:
+ *         description: Missing required fields
+ */
 app.post("/SaveProduct", async (req, res) => {
   try {
-    // Extract product details from the request body
-    const { title, price, description, category, image, rating, userid } =
-      req.body;
+    const { title, price, description, category, image, rating, userid } = req.body;
 
-    // Validate incoming data (you can use a validation library like Joi or validate manually)
     if (!title || !price || !category) {
-      return res
-        .status(400)
-        .json({ error: "Title, price, and category are required" });
+      return res.status(400).json({ error: "Title, price, and category are required" });
     }
 
     if (!userid) {
       return res.status(400).json({ error: "User id cannot be empty" });
     }
 
-    // Check if the user exists
-    const user = await userModel.findById(userid);
+    const user = await UserModel.findById(userid);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Create a new product instance
     const newProduct = new ProductModel({
       title,
       price,
@@ -132,160 +261,178 @@ app.post("/SaveProduct", async (req, res) => {
       category,
       image,
       rating,
-      userid, // Associate the userid with the product
+      userid,
     });
 
-    // Save the new product to the database
     await newProduct.save();
-
-    // Return success response
-    res
-      .status(201)
-      .json({ message: "Product added successfully", product: newProduct });
+    res.status(201).json({ message: "Product added successfully", product: newProduct });
   } catch (error) {
     console.error("Error adding product:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-app.post("/addtocart", async (req, res) => {
-  const { productId, userid } = req.body;
-
-  if (!userid) {
-    return res.status(400).json({ message: "User ID is required" });
-  }
-  if (!productId) {
-    return res.status(400).json({ message: "Product ID is required" });
-  }
-
+/**
+ * @swagger
+ * /addtocart:
+ *   post:
+ *     summary: Add a product to the cart
+ *     description: Add a product to a user's cart
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               productId:
+ *                 type: string
+ *               userid:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Product added to cart successfully
+ *       400:
+ *         description: Missing required fields
+ *       404:
+ *         description: User not found
+ */
+app.post('/addtocart', async (req, res) => {
   try {
-    // Check if the user exists
-    const userExists = await userModel.findById(userid);
-    if (!userExists) {
-      return res.status(404).json({ message: "User not found" });
+    const { productId, userid } = req.body;
+    if (!productId || !userid) {
+      return res.status(400).json({ error: "Product Id and User Id required" });
+    }
+    const user = await UserModel.findById(userid);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
 
-    // Check if the product exists
-    const productExists = await ProductModel.findById(productId);
-    if (!productExists) {
-      return res.status(404).json({ message: "Product not found" });
+    const product = await ProductModel.findById(productId);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
     }
 
-    // Check if the product is already in the user's cart
-    const existingCartItem = await ProductCart.findOne({ userid, productId });
-    if (existingCartItem) {
-      return res.status(201).json({ message: "Product already in cart" });
-    }
+    const cartItem = new ProductCart({
+      productId,
+      userid,
+    });
 
-    // Add the product to the cart
-    const newProductCart = new ProductCart({ userid, productId });
-    await newProductCart.save();
-
-    res
-      .status(201)
-      .json({ message: "Product added to cart successfully", newProductCart });
+    await cartItem.save();
+    res.status(201).json({ message: "Product added to cart successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error adding product to cart:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-app.post("/Auth/User", async (req, res) => {
+/**
+ * @swagger
+ * /signin:
+ *   post:
+ *     summary: User sign-in
+ *     description: Authenticate a user and return a JWT token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Authentication successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *       400:
+ *         description: Invalid credentials
+ *       404:
+ *         description: User not found
+ */
+app.post("/signin", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await UserModel.findOne({ email, password });
+    if (user) {
+      const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      res.status(200).json({ token, userId: user._id });
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error during sign-in:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: User sign-up
+ *     description: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Missing required fields
+ */
+app.post("/signup", async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
-      return res.status(201).json({ messege: "Some Feilds Are Missing" });
+      return res.status(400).json({ error: "All fields are required" });
     }
 
-    const user = new UserModel({
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "User already exists" });
+    }
+
+    const newUser = new UserModel({
       username,
       email,
       password,
     });
-    await user.save();
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
 
-    res
-      .status(201)
-      .json({ message: "User data saved successfully", user, token });
+    await newUser.save();
+    res.status(201).json({ message: "User registered successfully", user: newUser });
   } catch (error) {
-    console.error("Error saving user", error);
-    res.status(500).json({ error: "Error saving user" });
-  }
-});
-
-app.post("/Auth/Login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    // Check if email or password is missing
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required" });
-    }
-
-    // Find user by email
-    const user = await UserModel.findOne({ email });
-
-    // Check if user exists
-    if (!user) {
-      return res
-        .status(200)
-        .json({ message: "Invalid email or password", userAvailable: false });
-    }
-
-    // Compare passwords securely
-    const isMatch = await (password == user.password);
-
-    // Check if passwords match
-    if (!isMatch) {
-      return res.status(200).json({ message: "Invalid email or password" });
-    }
-
-    // Passwords match, login successful
-    const token = jwt.sign(
-      {
-        userId: user._id,
-        email: user.email,
-      },
-      JWT_SECRET,
-      { expiresIn: "1h" } // Token expires in 1 hour
-    );
-
-    // Login successful, send token
-    res.status(200).json({
-      message: "Login successful",
-      userAvailable: true,
-      token,
-      userId: user._id,
-      email: user.email,
-      username: user.username,
-    });
-  } catch (error) {
-    console.error("Error Finding User", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-app.delete("/deleteproductbyid/:productId", async (req, res) => {
-  const productId = req.params.productId;
-
-  try {
-    const deleteProduct = await ProductModel.findByIdAndDelete(productId);
-    if (deleteProduct) {
-      res.status(200).json({ message: "Product deleted successfully" });
-    } else {
-      res.status(404).json({ message: "Product not found" });
-    }
-  } catch (error) {
-    console.error("Error deleting product:", error);
+    console.error("Error during sign-up:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 
 app.listen(PORT, () => {
   console.log(`Server Started at ${PORT}`);
