@@ -1,7 +1,8 @@
 const express = require("express");
 const ConnectDb = require("./connectdb");
 // const URl = "mongodb://0.0.0.0:27017/Testing";
-const URl = "mongodb+srv://parvezmusharraf61:parvez3344@cluster0.5b50qms.mongodb.net/cluster0?retryWrites=true&w=majority&appName=Cluster0";
+const URl =
+  "mongodb+srv://parvezmusharraf61:parvez3344@cluster0.5b50qms.mongodb.net/cluster0?retryWrites=true&w=majority&appName=Cluster0";
 const ProductJson = require("./product.json");
 const app = express();
 const PORT = 3000;
@@ -12,16 +13,14 @@ const userModel = require("./models/userModel");
 const ProductCart = require("./models/cart");
 const jwt = require("jsonwebtoken");
 
-
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swaggerConfig');
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swaggerConfig");
 app.use(express.json());
 app.use(cors());
 
 const JWT_SECRET = "I am really a good boy"; // You should store this in an environment variable for better security
 
 // ALL PRODUCT API REQ
-
 
 /**
  * @swagger
@@ -156,15 +155,17 @@ app.get("/AllproductsByCategory", async (req, res) => {
  *               items:
  *                 type: object
  */
-app.get('/getAddToCart', async (req, res) => {
+app.get("/getAddToCart", async (req, res) => {
   try {
     const { userid } = req.query;
     if (!userid) {
       return res.status(400).json({ message: "User Id required" });
     }
-    const data = await ProductCart.find({ userid });  
+    const data = await ProductCart.find({ userid });
     if (data.length === 0) {
-      return res.status(404).json({ message: "No product found for the selected user" });
+      return res
+        .status(404)
+        .json({ message: "No product found for the selected user" });
     }
     const productIds = data.map((item) => item.productId);
     const products = await ProductModel.find({ _id: { $in: productIds } });
@@ -239,10 +240,13 @@ app.get("/getAllCatagoryList", async (req, res) => {
  */
 app.post("/SaveProduct", async (req, res) => {
   try {
-    const { title, price, description, category, image, rating, userid } = req.body;
+    const { title, price, description, category, image, rating, userid } =
+      req.body;
 
     if (!title || !price || !category) {
-      return res.status(400).json({ error: "Title, price, and category are required" });
+      return res
+        .status(400)
+        .json({ error: "Title, price, and category are required" });
     }
 
     if (!userid) {
@@ -265,7 +269,9 @@ app.post("/SaveProduct", async (req, res) => {
     });
 
     await newProduct.save();
-    res.status(201).json({ message: "Product added successfully", product: newProduct });
+    res
+      .status(201)
+      .json({ message: "Product added successfully", product: newProduct });
   } catch (error) {
     console.error("Error adding product:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -297,7 +303,7 @@ app.post("/SaveProduct", async (req, res) => {
  *       404:
  *         description: User not found
  */
-app.post('/addtocart', async (req, res) => {
+app.post("/addtocart", async (req, res) => {
   try {
     const { productId, userid } = req.body;
     if (!productId || !userid) {
@@ -369,7 +375,15 @@ app.post("/signin", async (req, res) => {
       const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
         expiresIn: "1h",
       });
-      res.status(200).json({ token, userId: user._id });
+      res
+        .status(200)
+        .json({
+          token,
+          userId: user._id,
+          username: user.username,
+          userAvailable: true,
+          message:"User Login Succefully"
+        });
     } else {
       res.status(404).json({ error: "User not found" });
     }
@@ -424,15 +438,16 @@ app.post("/signup", async (req, res) => {
     });
 
     await newUser.save();
-    res.status(201).json({ message: "User registered successfully", user: newUser });
+    res
+      .status(201)
+      .json({ message: "User registered successfully", user: newUser });
   } catch (error) {
     console.error("Error during sign-up:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(PORT, () => {
   console.log(`Server Started at ${PORT}`);
