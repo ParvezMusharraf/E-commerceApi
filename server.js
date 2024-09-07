@@ -334,6 +334,98 @@ app.post("/addtocart", async (req, res) => {
 
 /**
  * @swagger
+ * /removeCart/item:
+ *   delete:
+ *     summary: Remove a product from the user's cart
+ *     description: Deletes a product from the user's cart using the product ID and user ID from query parameters.
+ *     tags:
+ *       - Cart
+ *     parameters:
+ *       - in: query
+ *         name: productId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the product to remove from the cart.
+ *         example: 64f6c7d8924532b24cf0783e
+ *       - in: query
+ *         name: userid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the user whose cart is being modified.
+ *         example: 64f6c7d8924532b24cf0783f
+ *     responses:
+ *       200:
+ *         description: Product removed from cart successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Product deleted successfully
+ *       400:
+ *         description: Bad request. The request may be missing the productId or userid, or the item/user may not be found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Product Id and User Id required
+ *       404:
+ *         description: Not found. The product or user does not exist.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: User not found in system
+ *       500:
+ *         description: Internal server error. An error occurred on the server.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+
+
+app.delete("/removeCart/item", async(req,res)=>{
+
+  try {
+    const {productId,userid} = req.query;
+    if(!productId || !userid ){
+      return res.status(400).json({ error: "Product Id and User Id required" });
+    }
+    const user =  await userModel.findById(userid)
+    if(!user){
+      return res.status(400).json({ error: "user not found in system" });
+    }
+    const cartItem = ProductModel.find({productId,userid})
+    if(!cartItem){
+      return res.status(400).json({ error: "item not found" });
+    }
+
+    await ProductCart.deleteOne({productId,userid})
+    res.status(200).json({message:"Product deleted successfully"})
+  } catch (error) {
+    console.error("Error removing product from cart:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+
+})
+
+/**
+ * @swagger
  * /signin:
  *   post:
  *     summary: User sign-in
@@ -447,7 +539,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(PORT, () => {
   console.log(`Server Started at ${PORT}`);
