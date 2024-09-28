@@ -398,31 +398,28 @@ app.post("/addtocart", async (req, res) => {
  *                   example: Internal Server Error
  */
 
-
-app.delete("/removeCart/item", async(req,res)=>{
-
+app.delete("/removeCart/item", async (req, res) => {
   try {
-    const {productId,userid} = req.query;
-    if(!productId || !userid ){
+    const { productId, userid } = req.query;
+    if (!productId || !userid) {
       return res.status(400).json({ error: "Product Id and User Id required" });
     }
-    const user =  await userModel.findById(userid)
-    if(!user){
+    const user = await userModel.findById(userid);
+    if (!user) {
       return res.status(400).json({ error: "user not found in system" });
     }
-    const cartItem = ProductModel.find({productId,userid})
-    if(!cartItem){
+    const cartItem = ProductModel.find({ productId, userid });
+    if (!cartItem) {
       return res.status(400).json({ error: "item not found" });
     }
 
-    await ProductCart.deleteOne({productId,userid})
-    res.status(200).json({message:"Product deleted successfully"})
+    await ProductCart.deleteOne({ productId, userid });
+    res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     console.error("Error removing product from cart:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-
-})
+});
 
 /**
  * @swagger
@@ -467,15 +464,13 @@ app.post("/signin", async (req, res) => {
       const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
         expiresIn: "1h",
       });
-      res
-        .status(200)
-        .json({
-          token,
-          userId: user._id,
-          username: user.username,
-          userAvailable: true,
-          message:"User Login Succefully"
-        });
+      res.status(200).json({
+        token,
+        userId: user._id,
+        username: user.username,
+        userAvailable: true,
+        message: "User Login Succefully",
+      });
     } else {
       res.status(404).json({ error: "User not found" });
     }
@@ -536,6 +531,49 @@ app.post("/signup", async (req, res) => {
   } catch (error) {
     console.error("Error during sign-up:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.get("/suggestions", async (req, res) => {
+  try {
+    const { term } = req.query;
+
+    // Regex search for title and category
+    const regex = new RegExp(term, "i");
+    const products = await ProductModel.find({
+      $or: [{ title: { $regex: regex } }, { category: { $regex: regex } }],
+    }).select("title category"); // Only return title and category
+
+    const suggestions = products;
+
+    res.json(suggestions);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching suggestions", error });
+  }
+});
+
+app.get("/productdetailsbyId", async (req, res) => {
+  try {
+    const { productId } = req.query; // Destructure productId from req.query
+
+    if (productId) {
+      const isAvailable = await ProductModel.findById(productId); // Await the promise
+      if (isAvailable) {
+        const allCategoryList = await ProductModel.find({
+          category: isAvailable.category,
+        });
+        const allProductList = [isAvailable, ...allCategoryList];
+        res.status(200).json(allProductList); // Send the product data
+      } else {
+        res
+          .status(404)
+          .json({ message: "No Product Found For the selected Id" }); // Product not found
+      }
+    } else {
+      res.status(400).json({ message: "Product Id is required" }); // Bad request if no ID is provided
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching product", error }); // Handle error
   }
 });
 
