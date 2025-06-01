@@ -513,6 +513,11 @@ app.post("/signup", async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    const existingUserName = await UserModel.findOne({ username: req.body.username });
+    if (existingUserName) {
+      return res.status(400).json({ message: "Username already taken" });
+    }
+
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: "User already exists" });
